@@ -20,4 +20,4 @@ public:
 	void return_to_base();
 };
 
-#endif 
+#endif
