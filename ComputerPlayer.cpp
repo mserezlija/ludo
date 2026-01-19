@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include "ComputerPlayer.h"
 
 using namespace std;
@@ -6,58 +7,30 @@ using namespace std;
 ComputerPlayer::ComputerPlayer(string player_name, string player_color, int start_pos) : Player(player_name, player_color, start_pos) {}
 
 int ComputerPlayer::roll_dice() {
-	int result = (rand() % 6) + 1;
+	int result = (rand() % GameConstants::MAX_DICE_VALUE) + 1;
 	return result;
 }
 
-int ComputerPlayer::choose_piece() {
+int ComputerPlayer::choose_piece(int dice) {
 	cout << "kompjuter bira figuru..." << endl;
 
-	for (int i = 0; i < 4; i++) {
-		if (!pieces[i].is_in_base() && !pieces[i].is_in_goal()) {
+	for (int i = 0; i < GameConstants::NUM_PIECES_PER_PLAYER; i++) {
+		if (!pieces[i].is_in_base() && !pieces[i].is_in_goal() && pieces[i].can_move(dice)) {
 			cout << "racunalo je odabralo figuru " << (i + 1) << endl;
 			return i;
 		}
 	}
-	return -1;
 }
 
-void ComputerPlayer::handle_six_with_pieces_out(int dice) {
-	cout << "komp je dobio 6" << endl;
+bool ComputerPlayer::new_or_move() {
 
-	if (cnt_pieces_in_base() > 0) {
-		cout << "komp izvlaci novu figuru" << endl;
-		for (int i = 0; i < 4; i++) {
-			if (pieces[i].is_in_base()) {
-				pieces[i].place_on_start(start_position);
-				break;
-			}
-		}
+	if (cnt_pieces_in_base() >= 2) {
+		cout << "racunalo izvlaci novu figuru" << endl;
+		return true;
 	}
-	else {
-		cout << "komp pomice figuru" << endl;
-		int index = choose_piece();
-		if (index != -1 && !pieces[index].is_in_base() && !pieces[index].is_in_goal()) {
-			pieces[index].move(6);
-		}
-	}
-
-	//drugo bacanje
-	cout << "komp opet baca kockicu" << endl;
-	int second_dice = roll_dice();
-	cout << "dobio/la si: " << second_dice << endl;
-
-	int index = choose_piece();
-	if (index != -1 && !pieces[index].is_in_base() && !pieces[index].is_in_goal()) {
-		pieces[index].move(second_dice);
-	}
-
+	cout << "racunalo pomice postojecu figuru" << endl;
+	return false;
 }
-
-void ComputerPlayer::play_turn() {
-	Player::play_turn();
-}
-
 
 
 

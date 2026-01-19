@@ -123,12 +123,14 @@ bool Player::execute_move(int dice) {
 
 			if (avail_steps == GameConstants::TOTAL_STEPS_TO_GOAL) {
 				piece.move_to_goal();
-				cout << "figura u kucici" << endl;
+				cout << "figura u kucici na mistu 4/4" << endl;
 			}
 			else {
 				int home_pos = GameConstants::HOME_POSITION_BASE + start_position + home_index;
 				piece.move_to_position(avail_steps, home_pos);
-				cout << "figura u kucici na mistu " << (home_pos + 1) << "/4" << endl;
+
+				int home_progress = avail_steps - GameConstants::BOARD_SIZE;
+				cout << "figura u kucici na mistu " << home_progress << "/4" << endl;
 			}
 		}
 	}
@@ -183,6 +185,7 @@ void Player::handle_six(int dice) {
 void Player::handle_normal_move(int dice) { execute_move(dice); };
 
 void Player::play_turn() {
+	cout << endl;
 	cout << "sad igra: " << name << " (" << color << ")" << endl;
 	cout << "u bazi: " << cnt_pieces_in_base() << "/4" << endl;
 	cout << "u kucici: " << cnt_pieces_in_goal() << "/4" << endl;

@@ -12,4 +12,4 @@ public:
 	HumanPlayer(const string& name, const string& color, int start_pos);
 };
 
-#endif // !HUMAN_PLAYER_H
+#endif
