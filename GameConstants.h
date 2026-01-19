@@ -5,8 +5,9 @@ class GameConstants {
 public:
 	static constexpr int NUM_PLAYERS = 4;
 	static constexpr int NUM_PIECES_PER_PLAYER = 4;
-	static constexpr int INVALID_POSITION = -1;
+	static constexpr int BASE_POSITION = -1;
 	static constexpr int BOARD_SIZE = 40;
+	static constexpr int TOTAL_STEPS_TO_GOAL = 44;
 	static constexpr int HOME_STEPS = 4;
 	static constexpr int MAX_DICE_VALUE = 6;
 	static constexpr int MAX_ATTEMPTS_TO_ROLL = 3;

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Game.h"
 #include "ComputerPlayer.h"
+#include "GameConstants.h"
 #include <cstdlib>
 #include <ctime>
 #include <string>
@@ -13,12 +14,18 @@ Game::Game(int human_players) :curr_player(0), num_human_players(human_players) 
 	string colors[4] = { "Crvena", "Plava", "Zelena","Zuta" };
 	int starts[4] = { 0, 10, 20, 30 };
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < GameConstants::NUM_PLAYERS; i++) {
+		const char* color = GameConstants::PLAYER_COLORS[i];
+		int start_pos = GameConstants::START_POSITIONS[i];
+
+		string player_name;
 		if (i < num_human_players) {
-			players[i] = new Player("Igrac " + to_string(i + 1), colors[i], starts[i]);
+			player_name = "igrac " + to_string(i + 1);
+			players[i] = new Player(player_name, color, start_pos);
 		}
 		else {
-			players[i] = new ComputerPlayer("Racunalo " + to_string(i + 1), colors[i], starts[i]);
+			player_name = "racunalo " + to_string(i + 1);
+			players[i] = new ComputerPlayer(player_name, color, start_pos);
 		}
 	}
 }
@@ -34,7 +41,7 @@ void Game::start_game() {
 	cout << "Covjece, ne ljuti se!" << endl;
 	cout << endl;
 	cout << "Broj ljudskih igraca: " << num_human_players << endl;
-	cout << "Broj racunalnih igraca: " << (4 - num_human_players) << endl;
+	cout << "Broj racunalnih igraca: " << (4-num_human_players) << endl;
 
 	//demo, 12 poteza, 3 runde sa 4 igraca
 	for (int r = 0; r < 4; r++) {
@@ -42,7 +49,7 @@ void Game::start_game() {
 		cout << "runda: " << r + 1 << endl;
 		cout << endl;
 
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < GameConstants::NUM_PLAYERS; i++) {
 			players[curr_player]->play_turn();
 
 			if (players[curr_player]->all_pieces_in_goal()) {
@@ -50,7 +57,7 @@ void Game::start_game() {
 				return;
 			}
 
-			curr_player = (curr_player + 1) % 4;
+			curr_player = (curr_player + 1) % GameConstants::NUM_PLAYERS;
 
 			cout << endl;
 			cout << "-----------------------------------------" << endl;

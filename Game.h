@@ -2,10 +2,11 @@
 #define GAME_H
 
 #include "Player.h"
+#include "GameConstants.h"
 
 class Game {
 private:
-	Player* players[4];
+	Player* players[GameConstants::NUM_PLAYERS];
 	int curr_player;
 	int num_human_players;
 public:

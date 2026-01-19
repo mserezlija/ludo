@@ -3,6 +3,7 @@
 
 #include <string>
 #include "Piece.h"
+#include "GameConstants.h"
 
 using namespace std;
 
@@ -10,29 +11,35 @@ class Player {
 protected:
 	string name;
 	string color;
-	Piece pieces[4];
+	Piece pieces[GameConstants::NUM_PIECES_PER_PLAYER];
 	int start_position;
 
-	virtual int roll_dice();
-	virtual int choose_piece();
-	virtual void handle_six_with_pieces_out(int dice);
+	virtual int roll_dice() = 0;
+	virtual int choose_piece(int dice) = 0;
+	virtual bool new_or_move() = 0;
+	//virtual void handle_six_with_pieces_out(int dice);
+
+	bool execute_move(int dice);
 
 	void handle_rolling_to_game(int& dice);
-	void handle_six_no_pieces_out(int dice);
+	void handle_six(int dice);
 	void handle_normal_move(int dice);
+	void take_piece_from_base();
 public:
-	Player(string player_name = "Igrac", string player_color = "Zelena", int start_pos = 0);
+	Player(const string& player_name, const string& player_color, int start_pos);
 
 	virtual ~Player();
 
 	string get_name() const;
 	string get_color() const;
+	int get_start_pos() const;
+	Piece* get_piece(int index);
 
-	bool has_piece_out_of_base() const;
+	bool has_piece_on_board() const;
 	bool all_pieces_in_goal() const;
 	int cnt_pieces_in_base() const;
-	void show_available_pieces() const;
-
+	int cnt_pieces_in_goal() const;
+	bool has_valid_move(int dice) const;
 
 	virtual void play_turn();
 };
