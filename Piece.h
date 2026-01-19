@@ -27,6 +27,8 @@ public:
 	int new_position(int dice) const;
 
 	void move(int dice);
+	void move_to_position(int steps, int pos);
+	void move_to_goal();
 	void return_to_base();
 };
 

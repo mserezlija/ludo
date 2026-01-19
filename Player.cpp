@@ -12,6 +12,9 @@ Player::Player(const string& player_name,const string& player_color, int start_p
 	for (int i = 0; i < GameConstants::NUM_PIECES_PER_PLAYER; i++) {
 		pieces[i].init(start_position);
 	}
+	for (int i = 0; i < GameConstants::HOME_STEPS; i++) {
+		home_occupied[i] = false;
+	}
 }
 
 Player::~Player(){}
@@ -55,6 +58,17 @@ int Player::cnt_pieces_in_goal() const {
 	return count_if(begin(pieces), end(pieces), in_goal);
 }
 
+int Player::find_available_home(int needed_steps) {
+	for (int s = needed_steps; s > GameConstants::BOARD_SIZE; s--) {
+		int home_index = s - GameConstants::BOARD_SIZE - 1;
+
+		if (home_index >= 0 && home_index < GameConstants::HOME_STEPS) {
+			if (!home_occupied[home_index]) { return s; }
+		}
+	}
+	return -1;
+}
+
 void Player::handle_rolling_to_game(int& dice) {
 	for (int i = 0; i < GameConstants::MAX_ATTEMPTS_TO_ROLL;i++) {
 		dice = roll_dice();
@@ -83,17 +97,52 @@ bool Player::execute_move(int dice) {
 	
 	if (index == -1) { return false; };
 
-	pieces[index].move(dice);
+	Piece& piece = pieces[index];
+	int curr_steps = piece.get_steps_taken();
+	int new_steps = curr_steps + dice;
+
+	if (new_steps > GameConstants::BOARD_SIZE) {
+
+		if (curr_steps > GameConstants::BOARD_SIZE) {
+			int old_home_index = curr_steps - GameConstants::BOARD_SIZE - 1;
+			if (old_home_index >= 0 && old_home_index < GameConstants::HOME_STEPS) {
+				home_occupied[old_home_index] = false;
+			}
+		}
+
+		int avail_steps = find_available_home(new_steps);
+
+		if (avail_steps == -1) {
+			int overfl = new_steps % GameConstants::BOARD_SIZE;
+			piece.move_to_position(overfl, (start_position + overfl) % GameConstants::BOARD_SIZE);
+			cout << "nema mista u kucici, ides u novi krug na " << piece.get_position() << endl;
+		}
+		else {
+			int home_index = avail_steps - GameConstants::BOARD_SIZE - 1;
+			home_occupied[home_index] = true;
+
+			if (avail_steps == GameConstants::TOTAL_STEPS_TO_GOAL) {
+				piece.move_to_goal();
+				cout << "figura u kucici" << endl;
+			}
+			else {
+				int home_pos = GameConstants::HOME_POSITION_BASE + start_position + home_index;
+				piece.move_to_position(avail_steps, home_pos);
+				cout << "figura u kucici na mistu " << (home_pos + 1) << "/4" << endl;
+			}
+		}
+	}
+	else { piece.move(dice); }
+
 	return true;
 }
 
-void Player::handle_rolling_to_game(int& dice) {
-	for (int i = 1; i <= GameConstants::MAX_ATTEMPTS_TO_ROLL; i++) {
-		cout << i << "/" << GameConstants::MAX_ATTEMPTS_TO_ROLL << endl;
-		dice = roll_dice();
-		cout << "kockica: " << dice << endl;
-
-		if (dice == GameConstants::MAX_DICE_VALUE) break;
+void Player::take_piece_from_base() {
+	for (int i = 0; i < GameConstants::NUM_PIECES_PER_PLAYER; i++) {
+		if (pieces[i].is_in_base()) {
+			pieces[i].place_on_start();
+			break;
+		}
 	}
 }
 
@@ -113,8 +162,10 @@ void Player::handle_six(int dice) {
 		//nova
 		if (new_or_move()) {
 			for (int i = 0; i < GameConstants::NUM_PIECES_PER_PLAYER; i++) {
-				pieces[i].place_on_start();
-				break;
+				if (pieces[i].is_in_base()) {
+					pieces[i].place_on_start();
+					break;
+				}
 			}
 		} // postojeca
 		else { execute_move(dice); };
@@ -126,13 +177,10 @@ void Player::handle_six(int dice) {
 	int second_dice = roll_dice();
 	cout << "kockica " << second_dice << endl;
 
-	if (has_valid_move(second_dice)) {
-		execute_move(dice); };
-	}
-	
+	if (has_valid_move(second_dice)) { execute_move(second_dice); }
 }
 
-void Player::handle_normal_move(int dice) { execute_move(); };
+void Player::handle_normal_move(int dice) { execute_move(dice); };
 
 void Player::play_turn() {
 	cout << "sad igra: " << name << " (" << color << ")" << endl;
@@ -144,7 +192,7 @@ void Player::play_turn() {
 	try {
 		if (!has_piece_on_board()) {
 			handle_rolling_to_game(dice);
-			if (dice != GameConstants::MAX_DICE_VALUE) { return; };
+			if (dice != GameConstants::MAX_DICE_VALUE) { return; }
 		}
 		else {
 			dice = roll_dice();

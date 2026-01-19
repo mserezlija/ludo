@@ -45,25 +45,26 @@ void Piece::move(int dice) {
 	if (in_base) { throw runtime_error("Figura je u bazi, koristi drugu funkciju!"); };
 	if (in_goal) { throw runtime_error("Figura je u kucici, koristi drugu funkciju!"); };
 	
-	int new_steps = steps_taken + dice;
+	steps_taken += dice;
+	
+	position = (owner_start_pos + steps_taken) % GameConstants::BOARD_SIZE;
+	cout << "figura se pomakla na poz: " << position << endl;
+}
 
-	if (steps_taken > GameConstants::BOARD_SIZE && new_steps > GameConstants::TOTAL_STEPS_TO_GOAL) {
-		throw runtime_error("greska!!!");
-	}
-	if (steps_taken == GameConstants::TOTAL_STEPS_TO_GOAL) {
-		in_goal = true;
-		position = GameConstants::BASE_POSITION;
-		cout << "figura u kucici" << endl;
-		return;
-	} else if (steps_taken > GameConstants::BOARD_SIZE && new_steps<GameConstants::TOTAL_STEPS_TO_GOAL) {
-		position = GameConstants::HOME_POSITION_BASE + owner_start_pos + (new_steps - GameConstants::BOARD_SIZE - 1);
-		cout << "figura ulazi u kucicu: " << (new_steps - GameConstants::BOARD_SIZE) << "/4" << endl;
-	}
-	else {
-		position = (owner_start_pos + new_steps) % GameConstants::BOARD_SIZE;
-		cout << "figura se pomakla na poziciju: " << position << endl;
-	}
-	steps_taken = new_steps;
+void Piece::move_to_position(int steps, int pos) {
+	if (in_base) { throw runtime_error("Figura je u bazi, koristi drugu funkciju!"); };
+	if (in_goal) { throw runtime_error("Figura je u kucici, koristi drugu funkciju!"); };
+
+	steps_taken = steps;
+	position = pos;
+}
+
+void Piece::move_to_goal() {
+	if(in_base) { throw runtime_error("Figura je u bazi, koristi drugu funkciju!"); };
+
+	in_goal = true;
+	position = GameConstants::BASE_POSITION;
+	steps_taken = GameConstants::TOTAL_STEPS_TO_GOAL;
 }
 
 void Piece::return_to_base() {

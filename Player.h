@@ -12,6 +12,7 @@ protected:
 	string name;
 	string color;
 	Piece pieces[GameConstants::NUM_PIECES_PER_PLAYER];
+	bool home_occupied[GameConstants::HOME_STEPS];
 	int start_position;
 
 	virtual int roll_dice() = 0;
@@ -25,6 +26,8 @@ protected:
 	void handle_six(int dice);
 	void handle_normal_move(int dice);
 	void take_piece_from_base();
+
+	int find_available_home(int needed_steps);
 public:
 	Player(const string& player_name, const string& player_color, int start_pos);
 
