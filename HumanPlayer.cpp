@@ -9,15 +9,19 @@ HumanPlayer::HumanPlayer(const string& name, const string& color, int start_pos)
 int HumanPlayer::roll_dice() {
 	cout << "stisni enter za bacit kockicu" << endl;
 	cin.get();
-	return (rand() % GameConstants::MAX_DICE_VALUE) + 1;
+	return (rand() % MAX_DICE_VALUE) + 1;
 }
 
 int HumanPlayer::choose_piece(int dice){
 	cout << "dostupne figure: " << endl;
 
-	for (int i = 0; i < GameConstants::NUM_PIECES_PER_PLAYER; i++) {
+	for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
 		if (!pieces[i].is_in_base() && !pieces[i].is_in_goal() && pieces[i].can_move(dice)) {
-			cout << (i + 1) << " pozicija: " << pieces[i].get_position() << endl;
+			cout << "figura " << (i + 1) << " - Pozicija: " << pieces[i].get_position();
+			if (pieces[i].is_in_home()) {
+				cout << " (kucica)";
+			}
+			cout << endl;
 		}
 	}
 
