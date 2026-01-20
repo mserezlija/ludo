@@ -164,24 +164,10 @@ void Graphics::draw_dice() {
     int half = size / 2;
     int r = 7;
 
-    //kockice prema igracu koji je na redu
-    Color dice_color = WHITE;
-    if (game) {
-        Player* curr = game->get_curr_player();
-        if (curr) {
-            string col = curr->get_color();
-            if (col == "Crvena") dice_color = RED;
-            else if (col == "Plava") dice_color = BLUE;
-            else if (col == "Zelena") dice_color = GREEN;
-            else if (col == "Zuta") dice_color = ORANGE;
-        }
-    }
-
-    DrawRectangle(cx - half, cy - half, size, size, dice_color);
+    DrawRectangle(cx - half, cy - half, size, size, WHITE);
     DrawRectangleLines(cx - half, cy - half, size, size, BLACK);
 
     int dice = last_dice;
-    //if (game) dice = game->get_curr_dice();
 
     int left = cx - 18;
     int right = cx + 18;
@@ -242,7 +228,18 @@ void Graphics::draw_message() {
 
 void Graphics::draw_buttons() {
     if (waiting_for_roll) {
-        DrawRectangle(350, 820, 200, 50, GREEN);
+        Color btn_color = GREEN;
+        if (game) {
+            Player* curr = game->get_curr_player();
+            if (curr) {
+                string col = curr->get_color();
+                if (col == "Crvena") btn_color = RED;
+                else if (col == "Plava") btn_color = BLUE;
+                else if (col == "Zelena") btn_color = GREEN;
+                else if (col == "Zuta") btn_color = ORANGE;
+            }
+        }
+        DrawRectangle(350, 820, 200, 50, btn_color);
         DrawRectangleLines(350, 820, 200, 50, BLACK);
         DrawText("BACI KOCKICU", 375, 835, 20, BLACK);
     }
