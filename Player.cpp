@@ -86,7 +86,6 @@ int Player::find_available_home(int needed_steps) {
 void Player::handle_rolling_to_game(int& dice) {
 	for (int i = 0; i < MAX_ATTEMPTS_TO_ROLL; i++) {
 		dice = roll_dice();
-		//cout << "dobio/la si: " << dice << endl;
 
 		if (dice == MAX_DICE_VALUE) { break; };
 	}
@@ -190,7 +189,6 @@ bool Player::execute_move(int dice, Board* board) {
 		}
 
 		if (is_my_piece) {
-			//cout << "Ne mozes stat na svoju figuru!" << endl;
 			return false;
 		}
 
@@ -240,10 +238,26 @@ void Player::handle_six(int dice, Board* board) {
 		take_piece_from_base(board);
 	}
 	else if (has_in_base && has_on_board) {
-		if (new_or_move()) {
-			take_piece_from_base(board);
+
+		bool start_blocked = false;
+
+		for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
+			if (!pieces[i].is_in_base() && !pieces[i].is_in_goal() &&
+				!pieces[i].is_in_home() && pieces[i].get_position() == start_position)
+				start_blocked = true;
+			break;
 		}
-		else { execute_move(dice, board); };
+		if (start_blocked) {
+			execute_move(dice, board);
+		}
+		else { 
+			if (new_or_move()) {
+				take_piece_from_base(board);
+		}
+			else { 
+				execute_move(dice, board); }; 
+			}
+		
 	}
 	else { execute_move(dice, board); };
 
@@ -259,11 +273,6 @@ void Player::handle_normal_move(int dice, Board* board) { execute_move(dice, boa
 
 
 void Player::play_turn(Board* board) {
-	//cout << endl;
-	//cout << "sad igra: " << name << " (" << color << ")" << endl;
-	//cout << "u bazi: " << cnt_pieces_in_base() << "/4" << endl;
-	//cout << "u kucici: " << cnt_pieces_in_goal() << "/4" << endl;
-
 	int dice = 0;
 
 	try {
@@ -272,22 +281,20 @@ void Player::play_turn(Board* board) {
 			if (dice != MAX_DICE_VALUE) { return; }
 			take_piece_from_base(board);
 
-			//cout << "baci opet!" << endl;
 			int second = roll_dice();
-			//cout << "kockica: " << second << endl;
-			if (has_valid_move(second)) {
+			if (second == MAX_DICE_VALUE) {
 				handle_six(second, board);
+			}
+			else if (has_valid_move(second)) {
+				execute_move(second, board);
 			}
 		}
 		else if (cnt_pieces_in_base() == 0 && !has_piece_on_board()) {
 			dice = roll_dice();
-			//cout << "kockica: " << dice << endl;
 			if (has_valid_move(dice)) {
 				execute_move(dice, board);
 				if (dice == MAX_DICE_VALUE) {
-					//cout << "baci opet!" << endl;
 					int second = roll_dice();
-					//cout << "kockica: " << second << endl;
 					if (has_valid_move(second)) {
 						execute_move(second, board);
 					}
@@ -296,7 +303,6 @@ void Player::play_turn(Board* board) {
 		}
 		else {
 			dice = roll_dice();
-			//cout << "kockica: " << dice << endl;
 			if (dice == MAX_DICE_VALUE) {
 				handle_six(dice, board);
 			}

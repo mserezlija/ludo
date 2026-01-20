@@ -70,7 +70,7 @@ void Graphics::draw_board() {
         Color c = LIGHTGRAY;
         if (i == 0) c = RED;
         else if (i == 10) c = BLUE;
-        else if (i == 20) c = GREEN;
+        else if (i == 20) c = DARKGREEN;
         else if (i == 30) c = ORANGE;
 
         DrawCircle((int)board_positions[i].x + 2, (int)board_positions[i].y + 2, 18, Fade(BLACK, 0.3f));
@@ -228,14 +228,14 @@ void Graphics::draw_message() {
 
 void Graphics::draw_buttons() {
     if (waiting_for_roll) {
-        Color btn_color = GREEN;
+        Color btn_color = DARKGREEN;
         if (game) {
             Player* curr = game->get_curr_player();
             if (curr) {
                 string col = curr->get_color();
                 if (col == "Crvena") btn_color = RED;
                 else if (col == "Plava") btn_color = BLUE;
-                else if (col == "Zelena") btn_color = GREEN;
+                else if (col == "Zelena") btn_color = DARKGREEN;
                 else if (col == "Zuta") btn_color = ORANGE;
             }
         }
@@ -279,7 +279,7 @@ int Graphics::get_clicked_piece(int player_idx) {
         }
         else if (!piece->is_in_goal()) {
             if (piece->is_in_home()) {
-                int home_idx = piece->get_steps_taken() - BOARD_SIZE - 1;
+                int home_idx = piece->get_steps_taken() - BOARD_SIZE;
                 if (home_idx >= 0 && home_idx < 4) {
                     int visual_idx = 3 - home_idx;
                     pos = home_positions[base_idx][visual_idx];

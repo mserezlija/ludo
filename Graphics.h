@@ -12,7 +12,7 @@ class Game;
 class Graphics {
 private:
     Game* game;
-    Color player_colors[4] = { RED, BLUE, GREEN, ORANGE };
+    Color player_colors[4] = { RED, DARKBLUE, DARKGREEN, ORANGE };
     int last_dice = 0;
 
     Vector2 board_positions[BOARD_SIZE];
