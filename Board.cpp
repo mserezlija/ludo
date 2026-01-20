@@ -21,10 +21,12 @@ void Board::clear_pos(int pos) {
     if (pos >= 0 && pos < BOARD_SIZE) { board_fields[pos] = nullptr; }
 }
 
-bool Board::eat_enemy(Piece* my_piece, int pos) {
-    if (!my_piece || my_piece->is_in_base() || my_piece->is_in_goal()) { return false; }
+string Board::eat_enemy(Piece* my_piece, int pos) {
+    if (!my_piece || my_piece->is_in_base() || my_piece->is_in_goal()) { return ""; }
 
-    if (pos < 0 || pos >= BOARD_SIZE) { return false; }
+    if (pos < 0 || pos >= BOARD_SIZE) { return ""; }
+
+    string eaten_color = "";
 
     bool eaten = false;
     int my_start = my_piece->get_owner_start();
@@ -46,12 +48,12 @@ bool Board::eat_enemy(Piece* my_piece, int pos) {
 
                 enemy->return_to_base();
                 //cout << p->get_color() << " figura je pojedena!" << endl;
-                eaten = true;
+                eaten_color = p->get_color();
             }
         }
     }
 
-    return eaten;
+    return eaten_color;
 }
 
 Piece* Board::get_piece_at(int pos) const {

@@ -10,6 +10,8 @@ const int PIECE_RADIUS = 16;
 
 Graphics::Graphics(Game* g) : game(g) {
     InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Covjece, ne ljuti se!");
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
+
     SetTargetFPS(60);
     init_positions();
 }

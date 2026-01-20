@@ -155,7 +155,15 @@ void Game::start_game() {
 
 
 		players[curr_player]->play_turn(board);
-		if (graphics) { graphics->update(); }
+		if (graphics) { 
+			graphics->update();
+			for (int i = 0; i < 60; i++) {
+				graphics->update();
+			}
+			graphics->set_message("");
+
+
+		}
 
 
 		if (players[curr_player]->all_pieces_in_goal()) {

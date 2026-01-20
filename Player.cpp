@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "Board.h"
 #include "Game.h"
+#include "Graphics.h"
 
 using namespace std;
 
@@ -183,7 +184,11 @@ bool Player::execute_move(int dice, Board* board) {
 	}
 
 	if (last_move_pos >= 0 && last_move_pos < BOARD_SIZE) {
-		board->eat_enemy(&piece, last_move_pos);
+		string eaten = board->eat_enemy(&piece, last_move_pos);
+		if (!eaten.empty() && game_ref && game_ref->get_graphics()) {
+			string msg = color + " je pojeo " + eaten + "!";
+			game_ref->get_graphics()->set_message(msg);
+		}
 	}
 	return true;
 }
@@ -195,8 +200,11 @@ void Player::take_piece_from_base(Board* board) {
 			last_move_pos = pieces[i].get_position();
 			board->place(&pieces[i], last_move_pos);
 
-			board->eat_enemy(&pieces[i], last_move_pos);
-			break;
+			string eaten = board->eat_enemy(&pieces[i], last_move_pos);
+			if (!eaten.empty() && game_ref && game_ref->get_graphics()) {
+				string msg = color + " je pojeo " + eaten + "!";
+				game_ref->get_graphics()->set_message(msg);
+			}			break;
 		}
 	}
 }

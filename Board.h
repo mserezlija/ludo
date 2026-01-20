@@ -16,7 +16,7 @@ public:
 	bool is_avail(int pos) const;
 	void place(Piece* piece, int pos);
 	void clear_pos(int pos);
-	bool eat_enemy(Piece* piece, int pos);
+	string eat_enemy(Piece* piece, int pos);
 	Piece* get_piece_at(int pos) const;
 };
 
