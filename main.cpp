@@ -17,6 +17,7 @@ int main() {
 	int num = temp_graph.wait_for_player_cnt();
 
 	Game igra(num, &temp_graph);;
+	temp_graph.set_game(&igra);
 	//Graphics grafika(&igra);
 	//igra.set_graphics(&grafika);
 

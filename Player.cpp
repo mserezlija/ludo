@@ -35,6 +35,10 @@ Piece* Player::get_piece(int i) {
 	return nullptr;
 }
 
+void Player::set_player_index(int index) { player_index = index; }
+
+int Player::get_player_index() const { return player_index; }
+
 bool Player::has_piece_on_board() const {
 	for (const auto& piece : pieces) {
 		if (!piece.is_in_base() && !piece.is_in_goal() && !piece.is_in_home()) {
@@ -80,7 +84,7 @@ int Player::find_available_home(int needed_steps) {
 void Player::handle_rolling_to_game(int& dice) {
 	for (int i = 0; i < MAX_ATTEMPTS_TO_ROLL; i++) {
 		dice = roll_dice();
-		cout << "dobio/la si: " << dice << endl;
+		//cout << "dobio/la si: " << dice << endl;
 
 		if (dice == MAX_DICE_VALUE) { break; };
 	}
@@ -214,20 +218,21 @@ void Player::handle_six(int dice, Board* board) {
 	else { execute_move(dice, board); };
 
 
-	cout << "baci opet" << endl;
+	//cout << "baci opet" << endl;
 	int second_dice = roll_dice();
-	cout << "kockica " << second_dice << endl;
+	//cout << "kockica " << second_dice << endl;
 
 	if (has_valid_move(second_dice)) { execute_move(second_dice, board); }
 }
 
 void Player::handle_normal_move(int dice, Board* board) { execute_move(dice, board); };
 
+
 void Player::play_turn(Board* board) {
-	cout << endl;
-	cout << "sad igra: " << name << " (" << color << ")" << endl;
-	cout << "u bazi: " << cnt_pieces_in_base() << "/4" << endl;
-	cout << "u kucici: " << cnt_pieces_in_goal() << "/4" << endl;
+	//cout << endl;
+	//cout << "sad igra: " << name << " (" << color << ")" << endl;
+	//cout << "u bazi: " << cnt_pieces_in_base() << "/4" << endl;
+	//cout << "u kucici: " << cnt_pieces_in_goal() << "/4" << endl;
 
 	int dice = 0;
 
@@ -237,22 +242,22 @@ void Player::play_turn(Board* board) {
 			if (dice != MAX_DICE_VALUE) { return; }
 			take_piece_from_base(board);
 
-			cout << "baci opet!" << endl;
+			//cout << "baci opet!" << endl;
 			int second = roll_dice();
-			cout << "kockica: " << second << endl;
+			//cout << "kockica: " << second << endl;
 			if (has_valid_move(second)) {
 				execute_move(second, board);
 			}
 		}
 		else if (cnt_pieces_in_base() == 0 && !has_piece_on_board()) {
 			dice = roll_dice();
-			cout << "kockica: " << dice << endl;
+			//cout << "kockica: " << dice << endl;
 			if (has_valid_move(dice)) {
 				execute_move(dice, board);
 				if (dice == MAX_DICE_VALUE) {
-					cout << "baci opet!" << endl;
+					//cout << "baci opet!" << endl;
 					int second = roll_dice();
-					cout << "kockica: " << second << endl;
+					//cout << "kockica: " << second << endl;
 					if (has_valid_move(second)) {
 						execute_move(second, board);
 					}
@@ -261,7 +266,7 @@ void Player::play_turn(Board* board) {
 		}
 		else {
 			dice = roll_dice();
-			cout << "kockica: " << dice << endl;
+			//cout << "kockica: " << dice << endl;
 			if (dice == MAX_DICE_VALUE) {
 				handle_six(dice, board);
 			}
@@ -276,7 +281,7 @@ void Player::play_turn(Board* board) {
 	}
 
 	if (all_pieces_in_goal()) {
-		cout << name << " je pobjednik!!!" << endl;
+		//cout << name << " je pobjednik!!!" << endl;
 	}
 
 }

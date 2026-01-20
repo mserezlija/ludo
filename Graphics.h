@@ -42,6 +42,7 @@ public:
     ~Graphics();
     
     void set_dice(int dice_val);
+    void set_game(Game* g);
 
     int wait_for_roll();
     int wait_for_piece_selection(int curr_player, int dice);

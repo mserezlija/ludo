@@ -9,7 +9,7 @@ const int WINDOW_SIZE = 900;
 const int PIECE_RADIUS = 16;
 
 Graphics::Graphics(Game* g) : game(g) {
-    InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Covjece ne ljuti se!");
+    InitWindow(WINDOW_SIZE, WINDOW_SIZE, "Covjece, ne ljuti se!");
     SetTargetFPS(60);
     init_positions();
 }
@@ -77,14 +77,6 @@ void Graphics::draw_board() {
     }
 }
 
-//void Graphics::draw_bases() {
-//    for (int p = 0; p < 4; p++) {
-//        for (int i = 0; i < 4; i++) {
-//            DrawCircle((int)base_positions[p][i].x, (int)base_positions[p][i].y, 14, Fade(player_colors[p], 0.3f));
-//        }
-//    }
-//}
-
 void Graphics::draw_homes() {
     for (int p = 0; p < 4; p++) {
         for (int i = 0; i < 4; i++) {
@@ -95,7 +87,10 @@ void Graphics::draw_homes() {
 }
 
 void Graphics::draw_pieces() {
-    if (!game) return;
+    if (!game) {
+        return;
+    }
+
 
     for (int p = 0; p < NUM_PLAYERS; p++) {
         Player* player = game->get_player(p);
@@ -136,6 +131,7 @@ void Graphics::draw_pieces() {
             }
             else {
                 int pos = piece->get_position();
+
                 if (pos >= 0 && pos < BOARD_SIZE) {
                     x = board_positions[pos].x;
                     y = board_positions[pos].y;
@@ -157,6 +153,8 @@ void Graphics::set_dice(int dice_val) {
     last_dice = dice_val;
 }
 
+void Graphics::set_game(Game* g) { game = g; }
+
 void Graphics::draw_dice() {
     int cx = WINDOW_SIZE / 2;
     int cy = WINDOW_SIZE / 2;
@@ -164,12 +162,24 @@ void Graphics::draw_dice() {
     int half = size / 2;
     int r = 7;
 
-    // Bijeli kvadrat sa zaobljenim rubovima (simuliramo sa 2 kvadrata)
-    DrawRectangle(cx - half, cy - half, size, size, WHITE);
+    //kockice prema igracu koji je na redu
+    Color dice_color = WHITE;
+    if (game) {
+        Player* curr = game->get_curr_player();
+        if (curr) {
+            string col = curr->get_color();
+            if (col == "Crvena") dice_color = RED;
+            else if (col == "Plava") dice_color = BLUE;
+            else if (col == "Zelena") dice_color = GREEN;
+            else if (col == "Zuta") dice_color = ORANGE;
+        }
+    }
+
+    DrawRectangle(cx - half, cy - half, size, size, dice_color);
     DrawRectangleLines(cx - half, cy - half, size, size, BLACK);
 
     int dice = last_dice;
-    if (game) dice = game->get_curr_dice();
+    //if (game) dice = game->get_curr_dice();
 
     int left = cx - 18;
     int right = cx + 18;
@@ -230,9 +240,9 @@ void Graphics::draw_message() {
 
 void Graphics::draw_buttons() {
     if (waiting_for_roll) {
-        DrawRectangle(350, 750, 200, 50, GREEN);
-        DrawRectangleLines(350, 750, 200, 50, BLACK);
-        DrawText("BACI KOCKICU", 375, 765, 20, BLACK);
+        DrawRectangle(350, 820, 200, 50, GREEN);
+        DrawRectangleLines(350, 820, 200, 50, BLACK);
+        DrawText("BACI KOCKICU", 375, 835, 20, BLACK);
     }
 
     if (waiting_for_new_or_move) {
@@ -298,7 +308,7 @@ int Graphics::wait_for_roll() {
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse = GetMousePosition();
-            if (mouse.x >= 350 && mouse.x <= 550 && mouse.y >= 750 && mouse.y <= 800) {
+            if (mouse.x >= 350 && mouse.x <= 550 && mouse.y >= 820 && mouse.y <= 870) {
                 waiting_for_roll = false;
                 int result = (rand() % MAX_DICE_VALUE) + 1;
                 return result;
@@ -317,10 +327,17 @@ int Graphics::wait_for_roll() {
 }
 
 int Graphics::wait_for_piece_selection(int current_player, int dice) {
+    if (!game) return -1;
     waiting_for_piece = true;
-    //set_message("Klikni na figuru koju zelis pomaknuti");
+    set_message("Klikni na figuru za pomaknuti je na ploci");
 
     Player* player = game->get_player(current_player);
+
+    if (!player) {
+        waiting_for_piece = false;
+        set_message("");
+        return -1;
+    }
 
     while (!WindowShouldClose()) {
         update();
@@ -372,12 +389,13 @@ int Graphics::wait_for_player_cnt() {
         BeginDrawing();
         ClearBackground(DARKGRAY);
 
-        DrawText("COVJECE NE LJUTI SE", 280, 100, 30, WHITE);
-        DrawText("Odaberi broj ljudskih igraca:", 280, 250, 24, WHITE);
+        DrawText("COVJECE, NE LJUTI SE", 300, 100, 30, WHITE);
+        DrawText("Odaberi broj ljudskih igraca:", 270, 250, 24, WHITE);
+
 
         // Gumbi 0-4
         for (int i = 1; i <= 4; i++) {
-            int x = 200 + i * 110;
+            int x = 270 + (i - 1) * 100;
             DrawRectangle(x, 350, 80, 80, WHITE);
             DrawRectangleLines(x, 350, 80, 80, BLACK);
             char num[2] = { (char)('0' + i), '\0' };
@@ -389,7 +407,7 @@ int Graphics::wait_for_player_cnt() {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             Vector2 mouse = GetMousePosition();
             for (int i = 0; i <= 4; i++) {
-                int x = 200 + i * 110;
+                int x = 270 + (i - 1) * 100;
                 if (mouse.x >= x && mouse.x <= x + 80 && mouse.y >= 350 && mouse.y <= 430) {
                     return i;
                 }
@@ -440,13 +458,12 @@ void Graphics::update() {
 
     BeginDrawing();
     draw_board();
-    //draw_bases();
     draw_homes();
     draw_pieces();
     draw_dice();
     draw_buttons();
     draw_message();
-    DrawText("COVJECE NE LJUTI SE", 320, 10, 26, WHITE);
+    DrawText("COVJECE, NE LJUTI SE", 320, 10, 26, WHITE);
     EndDrawing();
 }
 

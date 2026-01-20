@@ -45,7 +45,7 @@ bool Board::eat_enemy(Piece* my_piece, int pos) {
                 !enemy->is_in_home()) {
 
                 enemy->return_to_base();
-                cout << p->get_color() << " figura je pojedena!" << endl;
+                //cout << p->get_color() << " figura je pojedena!" << endl;
                 eaten = true;
             }
         }

@@ -51,10 +51,8 @@ int HumanPlayer::choose_piece(int dice) {
 		}
 	}*/
 	if (graphics && game_ref) {
-		for (int i = 0; i < NUM_PLAYERS; i++) {
-			if (game_ref->get_player(i) == this) {
-				return graphics->wait_for_piece_selection(i, dice);
-			}
+		if (graphics && player_index >= 0) {
+			return graphics->wait_for_piece_selection(player_index, dice);
 		}
 	}
 	return 0;

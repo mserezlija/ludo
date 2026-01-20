@@ -31,9 +31,12 @@ public:
 
 	void start_game();
 	Player* get_player(int index);
+	Player* get_curr_player();
 
 	void connect_graphics_to_players();
 	void set_graphics(Graphics* g);
+	Graphics* get_graphics();
+
 };
 
 #endif

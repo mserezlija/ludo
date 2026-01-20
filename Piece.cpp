@@ -27,7 +27,7 @@ void Piece::place_on_start() {
 	in_base = false;
 	in_goal = false;
 
-	cout << "figura izasla iz baze na poziciju: " << position << endl;
+	//cout << "figura izasla iz baze na poziciju: " << position << endl;
 }
 
 bool Piece::can_move(int dice) const {
@@ -60,7 +60,7 @@ void Piece::move(int dice) {
 	steps_taken += dice;
 	position = (owner_start_pos + steps_taken) % BOARD_SIZE;
 
-	cout << "figura se pomakla na poz: " << position << endl;
+	//cout << "figura se pomakla na poz: " << position << endl;
 }
 
 void Piece::move_to_position(int steps, int pos) {
@@ -84,5 +84,5 @@ void Piece::return_to_base() {
 	steps_taken = 0;
 	in_base = true;
 	in_goal = false;
-	cout << "figura se vraca u bazu." << endl;
+	//cout << "figura se vraca u bazu." << endl;
 }

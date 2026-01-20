@@ -59,6 +59,7 @@ Game::Game(int human_players, Graphics* graph) : curr_player(0), num_human(human
 
 	for (int i = 0; i < NUM_PLAYERS; i++) {
 		players[i]->set_game(this);
+		players[i]->set_player_index(i);
 	}
 }
 
@@ -70,29 +71,37 @@ void Game::connect_graphics_to_players() {
 }
 
 string Game::pick_color(int player_n, bool taken_colors[]) {
-	cout << "odaberi boju: ";
-	for (int i = 0; i < NUM_PLAYERS; i++) {
-		if (!taken_colors[i]) {
-			cout << "  " << (i + 1) << " - " << PLAYER_COLORS[i] << endl;
+	if (graphics) {
+		int sel_index = graphics->wait_for_color_sel(taken_colors);
+		if (sel_index >= 0 && sel_index < NUM_PLAYERS) {
+			taken_colors[sel_index] = true;
+			return PLAYER_COLORS[sel_index];
 		}
 	}
+	////cout << "odaberi boju: ";
+	//for (int i = 0; i < NUM_PLAYERS; i++) {
+	//	if (!taken_colors[i]) {
+	//		cout << "  " << (i + 1) << " - " << PLAYER_COLORS[i] << endl;
+	//	}
+	//}
 
-	int picked;
-	cin >> picked;
-	cin.ignore();
-	picked--;
+	//int picked;
+	//cin >> picked;
+	//cin.ignore();
+	//picked--;
 
-	if (picked >= 0 && picked < NUM_PLAYERS && !taken_colors[picked]) {
-		taken_colors[picked] = true;
-		return PLAYER_COLORS[picked];
-	}
-	cout << "neispravan unos, automatski dodiljenja boja" << endl;
-	for (int i = 0; i < NUM_PLAYERS; i++) {
-		if (!taken_colors[i]) {
-			taken_colors[i] = true;
-			return PLAYER_COLORS[i];
-		}
-	}
+	//if (picked >= 0 && picked < NUM_PLAYERS && !taken_colors[picked]) {
+	//	taken_colors[picked] = true;
+	//	return PLAYER_COLORS[picked];
+	//}
+	////cout << "neispravan unos, automatski dodiljenja boja" << endl;
+	//for (int i = 0; i < NUM_PLAYERS; i++) {
+	//	if (!taken_colors[i]) {
+	//		taken_colors[i] = true;
+	//		return PLAYER_COLORS[i];
+	//	}
+	//}
+
 }
 
 Game::~Game() {
@@ -122,33 +131,35 @@ void Game::update_dice(int dice_val) {
 
 void Game::set_graphics(Graphics* g) { graphics = g; }
 
+Graphics* Game::get_graphics() { return graphics; }
+
 Player* Game::get_player(int index) {
-	if (index >= 0 && index < NUM_PLAYERS) {
+	if (index >= 0 && index < NUM_PLAYERS && players[index] != nullptr) {
 		return players[index];
 	}
 	return nullptr;
 }
 
+Player* Game::get_curr_player() { return players[curr_player]; }
 
 void Game::start_game() {
-	cout << "Covjece, ne ljuti se!" << endl;
-	cout << endl;
-	cout << "Broj ljudskih igraca: " << num_human << endl;
-	cout << "Broj racunalnih igraca: " << (4 - num_human) << endl;
 
 	if (graphics) { graphics->update(); }
 
 	bool game_over = false;
 
 	while (!game_over) {
+		Player* curr = players[curr_player];
+		
 		if (graphics) { graphics->update(); }
+
 
 		players[curr_player]->play_turn(board);
 		if (graphics) { graphics->update(); }
 
 
 		if (players[curr_player]->all_pieces_in_goal()) {
-			cout << "pobjeda " << players[curr_player]->get_color() << "!!!!!!!!!!!" << endl;
+			//cout << "pobjeda " << players[curr_player]->get_color() << "!!!!!!!!!!!" << endl;
 			game_over = true;
 		}
 		curr_player = (curr_player + 1) % NUM_PLAYERS;
