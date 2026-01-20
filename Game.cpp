@@ -157,7 +157,10 @@ void Game::start_game() {
 		players[curr_player]->play_turn(board);
 		if (graphics) { 
 			graphics->update();
-			for (int i = 0; i < 60; i++) {
+
+			int pause_frames = (curr_player >= num_human) ? 90 : 60;
+
+			for (int i = 0; i < pause_frames; i++) {
 				graphics->update();
 			}
 			graphics->set_message("");

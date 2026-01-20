@@ -121,7 +121,7 @@ bool Player::execute_move(int dice, Board* board) {
 
 	last_move_pos = -1;
 
-	if (new_steps > BOARD_SIZE) {
+	if (new_steps >= BOARD_SIZE) {
 
 		if (curr_steps > BOARD_SIZE) {
 			int old_home_index = curr_steps - BOARD_SIZE - 1;
@@ -136,7 +136,15 @@ bool Player::execute_move(int dice, Board* board) {
 		}
 		else if (new_steps > TOTAL_STEPS_TO_GOAL) {
 			int overfl = new_steps - BOARD_SIZE;
-			last_move_pos = (start_position + overfl) % BOARD_SIZE;
+			int new_pos = (start_position + overfl) % BOARD_SIZE;
+
+			for (int k = 0; k < NUM_PIECES_PER_PLAYER; k++) {
+				if (k != index && !pieces[k].is_in_base() && !pieces[k].is_in_goal() &&
+					!pieces[k].is_in_home() && pieces[k].get_position() == new_pos) {
+					return false;
+				}
+			}
+			last_move_pos = new_pos;
 			piece.move_to_position(overfl, last_move_pos);
 			board->place(&piece, last_move_pos);
 		}
@@ -145,7 +153,15 @@ bool Player::execute_move(int dice, Board* board) {
 
 			if (avail_steps == -1) {
 				int overfl = new_steps - BOARD_SIZE;
-				last_move_pos = (start_position + overfl) % BOARD_SIZE;
+				int new_pos = (start_position + overfl) % BOARD_SIZE;
+
+				for (int k = 0; k < NUM_PIECES_PER_PLAYER; k++) {
+					if (k != index && !pieces[k].is_in_base() && !pieces[k].is_in_goal() &&
+						!pieces[k].is_in_home() && pieces[k].get_position() == new_pos) {
+						return false;
+					}
+				}
+				last_move_pos = new_pos;
 				piece.move_to_position(overfl, last_move_pos);
 				board->place(&piece, last_move_pos);
 			}
@@ -195,6 +211,12 @@ bool Player::execute_move(int dice, Board* board) {
 
 void Player::take_piece_from_base(Board* board) {
 	for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
+		if (!pieces[i].is_in_base() && !pieces[i].is_in_goal() &&
+			!pieces[i].is_in_home() && pieces[i].get_position() == start_position) {
+			return; 
+		}
+	}
+	for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
 		if (pieces[i].is_in_base()) {
 			pieces[i].place_on_start();
 			last_move_pos = pieces[i].get_position();
@@ -217,20 +239,19 @@ void Player::handle_six(int dice, Board* board) {
 		take_piece_from_base(board);
 	}
 	else if (has_in_base && has_on_board) {
-		//nova
 		if (new_or_move()) {
 			take_piece_from_base(board);
-		} // postojeca
+		}
 		else { execute_move(dice, board); };
 	}
 	else { execute_move(dice, board); };
 
 
-	//cout << "baci opet" << endl;
 	int second_dice = roll_dice();
-	//cout << "kockica " << second_dice << endl;
-
-	if (has_valid_move(second_dice)) { execute_move(second_dice, board); }
+	if (second_dice == MAX_DICE_VALUE) {
+		handle_six(second_dice, board);
+	}
+	else if (has_valid_move(second_dice)) { execute_move(second_dice, board); }
 }
 
 void Player::handle_normal_move(int dice, Board* board) { execute_move(dice, board); };
