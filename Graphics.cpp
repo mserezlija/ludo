@@ -119,15 +119,15 @@ void Graphics::draw_pieces() {
                 y = base_positions[base_idx][i].y;
             }
             else if (piece->is_in_goal()) {
-                // U cilju = zadnje polje kucice (pozicija 4)
-                x = home_positions[base_idx][3].x;
-                y = home_positions[base_idx][3].y;
+                x = home_positions[base_idx][0].x;
+                y = home_positions[base_idx][0].y;
             }
             else if (piece->is_in_home()) {
-                int home_idx = piece->get_steps_taken() - BOARD_SIZE - 1;
+                int home_idx = piece->get_steps_taken() - BOARD_SIZE;
                 if (home_idx >= 0 && home_idx < 4) {
-                    x = home_positions[base_idx][home_idx].x;
-                    y = home_positions[base_idx][home_idx].y;
+                    int visual_idx = 3 - home_idx;
+                    x = home_positions[base_idx][visual_idx].x;
+                    y = home_positions[base_idx][visual_idx].y;
                 }
                 else draw = false;
             }
@@ -284,7 +284,8 @@ int Graphics::get_clicked_piece(int player_idx) {
             if (piece->is_in_home()) {
                 int home_idx = piece->get_steps_taken() - BOARD_SIZE - 1;
                 if (home_idx >= 0 && home_idx < 4) {
-                    pos = home_positions[base_idx][home_idx];
+                    int visual_idx = 3 - home_idx;
+                    pos = home_positions[base_idx][visual_idx];
                 }
             }
             else {

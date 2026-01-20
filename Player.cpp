@@ -72,15 +72,16 @@ int Player::cnt_pieces_in_goal() const {
 }
 
 int Player::find_available_home(int needed_steps) {
-	for (int s = needed_steps; s > BOARD_SIZE; s--) {
-		int home_index = s - BOARD_SIZE - 1;
+	int home_index = needed_steps - BOARD_SIZE;
 
-		if (home_index >= 0 && home_index < HOME_STEPS) {
-			if (!home_occupied[home_index]) { return s; }
+	if (home_index >= 0 && home_index < HOME_STEPS) {
+		if (!home_occupied[home_index]) {
+			return needed_steps;
 		}
 	}
 	return -1;
 }
+
 
 void Player::handle_rolling_to_game(int& dice) {
 	for (int i = 0; i < MAX_ATTEMPTS_TO_ROLL; i++) {
@@ -123,8 +124,8 @@ bool Player::execute_move(int dice, Board* board) {
 
 	if (new_steps >= BOARD_SIZE) {
 
-		if (curr_steps > BOARD_SIZE) {
-			int old_home_index = curr_steps - BOARD_SIZE - 1;
+		if (curr_steps >= BOARD_SIZE) {
+			int old_home_index = curr_steps - BOARD_SIZE;
 			if (old_home_index >= 0 && old_home_index < HOME_STEPS) {
 				home_occupied[old_home_index] = false;
 			}
@@ -166,7 +167,7 @@ bool Player::execute_move(int dice, Board* board) {
 				board->place(&piece, last_move_pos);
 			}
 			else {
-				int home_index = avail_steps - BOARD_SIZE - 1;
+				int home_index = avail_steps - BOARD_SIZE;
 				home_occupied[home_index] = true;
 
 				int home_pos = HOME_POSITION_BASE + start_position + home_index;
@@ -275,7 +276,7 @@ void Player::play_turn(Board* board) {
 			int second = roll_dice();
 			//cout << "kockica: " << second << endl;
 			if (has_valid_move(second)) {
-				execute_move(second, board);
+				handle_six(second, board);
 			}
 		}
 		else if (cnt_pieces_in_base() == 0 && !has_piece_on_board()) {

@@ -1,5 +1,10 @@
-# Covjece, ne ljuti se (LUDO)
-Implementacija klasicne drustvene igre za 1-4 igraca.
+# ?ovje?e, ne ljuti se (LUDO)
+Implementacija klasi?ne društvene igre za 1-4 igra?a u C++ s Raylib grafi?kim su?eljem.
+
+## Kako pokrenuti projekt
+
+### Windows
+Pokrenite 
 
 ### Kontrole u igri
 #### Ljudski igraci

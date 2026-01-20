@@ -17,7 +17,7 @@ int Piece::get_owner_start() const { return owner_start_pos; };
 
 bool Piece::is_in_base() const { return in_base; };
 bool Piece::is_in_goal() const { return in_goal; };
-bool Piece::is_in_home() const { return steps_taken > BOARD_SIZE && !in_goal; }
+bool Piece::is_in_home() const { return steps_taken >= BOARD_SIZE && !in_goal; }
 
 void Piece::place_on_start() {
 	if (!in_base) { throw runtime_error("Figura nije u bazi, ne moze izaci na plocu!"); };
@@ -33,7 +33,7 @@ void Piece::place_on_start() {
 bool Piece::can_move(int dice) const {
 	if (in_base || in_goal) return false;
 
-	if (steps_taken > BOARD_SIZE) {
+	if (steps_taken >= BOARD_SIZE) {
 		int new_steps = steps_taken + dice;
 		return new_steps <= TOTAL_STEPS_TO_GOAL;
 	}
@@ -44,10 +44,10 @@ int Piece::new_position(int dice) const {
 	if (in_base || in_goal) { return BASE_POSITION; };
 
 	int new_steps = steps_taken + dice;
-	int go_home = HOME_POSITION_BASE + owner_start_pos + (new_steps - BOARD_SIZE - 1);
+	int go_home = HOME_POSITION_BASE + owner_start_pos + (new_steps - BOARD_SIZE);
 	int continue_to_board = (owner_start_pos + new_steps) % BOARD_SIZE;
 
-	if (new_steps > BOARD_SIZE) {
+	if (new_steps >= BOARD_SIZE) {
 		return go_home;
 	}
 	return continue_to_board;
