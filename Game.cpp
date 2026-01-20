@@ -3,7 +3,7 @@
 #include "ComputerPlayer.h"
 #include "HumanPlayer.h"
 #include "GameConstants.h"
-#include "Game.h"
+#include "Graphics.h"
 #include <cstdlib>
 #include <ctime>
 #include <string>
@@ -25,9 +25,9 @@ Game::Game(int human_players) :curr_player(0), num_human(human_players) {
 		string color;
 		int start_pos = START_POSITIONS[i];
 
-		if (i < num_human) { 
-			color = pick_color(i+1,taken_colors); 
-		
+		if (i < num_human) {
+			color = pick_color(i + 1, taken_colors);
+
 			for (int j = 0; j < NUM_PLAYERS; j++) {
 				if (PLAYER_COLORS[j] == color) {
 					start_pos = START_POSITIONS[j];
@@ -36,10 +36,11 @@ Game::Game(int human_players) :curr_player(0), num_human(human_players) {
 			}
 		}
 		else {
-			for (int i = 0; i < NUM_PLAYERS; i++) {
-				if (!taken_colors[i]) {
-					taken_colors[i] = true;
-					color = PLAYER_COLORS[i];
+			for (int j = 0; j < NUM_PLAYERS; j++) {
+				if (!taken_colors[j]) {
+					taken_colors[j] = true;
+					color = PLAYER_COLORS[j];
+					start_pos = START_POSITIONS[j];
 					break;
 				}
 			}
@@ -72,7 +73,7 @@ string Game::pick_color(int player_n, bool taken_colors[]) {
 		return PLAYER_COLORS[picked];
 	}
 	cout << "neispravan unos, automatski dodiljenja boja" << endl;
-	for (int i = 0; i< NUM_PLAYERS; i++) {
+	for (int i = 0; i < NUM_PLAYERS; i++) {
 		if (!taken_colors[i]) {
 			taken_colors[i] = true;
 			return PLAYER_COLORS[i];
@@ -87,6 +88,15 @@ Game::~Game() {
 	delete board;
 }
 
+void Game::update_dice(int dice_val) {
+    if (graphics) {
+        graphics->set_dice(dice_val);
+        graphics->update();
+    }
+}
+
+void Game::set_graphics(Graphics* g) { graphics = g; }
+
 Player* Game::get_player(int index) {
 	if (index >= 0 && index < NUM_PLAYERS) {
 		return players[index];
@@ -99,12 +109,18 @@ void Game::start_game() {
 	cout << "Covjece, ne ljuti se!" << endl;
 	cout << endl;
 	cout << "Broj ljudskih igraca: " << num_human << endl;
-	cout << "Broj racunalnih igraca: " << (4-num_human) << endl;
+	cout << "Broj racunalnih igraca: " << (4 - num_human) << endl;
+
+	if (graphics) { graphics->update(); }
 
 	bool game_over = false;
 
 	while (!game_over) {
+		if (graphics) { graphics->update(); }
+
 		players[curr_player]->play_turn(board);
+		if (graphics) { graphics->update(); }
+
 
 		if (players[curr_player]->all_pieces_in_goal()) {
 			cout << "pobjeda " << players[curr_player]->get_color() << "!!!!!!!!!!!" << endl;
@@ -112,11 +128,11 @@ void Game::start_game() {
 		}
 		curr_player = (curr_player + 1) % NUM_PLAYERS;
 	}
+
+	if (graphics) {
+		while (!graphics->should_close()) {
+			graphics->update();
+		}
+	}
 }
-
-
-
-
-
-
 

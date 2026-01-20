@@ -12,7 +12,7 @@ int HumanPlayer::roll_dice() {
 	return (rand() % MAX_DICE_VALUE) + 1;
 }
 
-int HumanPlayer::choose_piece(int dice){
+int HumanPlayer::choose_piece(int dice) {
 	cout << "dostupne figure: " << endl;
 
 	for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {

@@ -7,8 +7,8 @@
 
 using namespace std;
 
-Player::Player(const string& player_name,const string& player_color, int start_pos) 
-	:name(player_name), color(player_color), start_position(start_pos) 
+Player::Player(const string& player_name, const string& player_color, int start_pos)
+	:name(player_name), color(player_color), start_position(start_pos)
 {
 	for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
 		pieces[i].init(start_position);
@@ -18,7 +18,7 @@ Player::Player(const string& player_name,const string& player_color, int start_p
 	}
 }
 
-Player::~Player(){}
+Player::~Player() {}
 
 string Player::get_name() const { return name; };
 string Player::get_color() const { return color; };
@@ -33,10 +33,10 @@ Piece* Player::get_piece(int i) {
 }
 
 bool Player::has_piece_on_board() const {
-	for (const auto& piece: pieces) {
+	for (const auto& piece : pieces) {
 		if (!piece.is_in_base() && !piece.is_in_goal() && !piece.is_in_home()) {
 			return true;
-		} 
+		}
 	}
 	return false;
 }
@@ -58,7 +58,7 @@ int Player::cnt_pieces_in_base() const {
 int Player::cnt_pieces_in_goal() const {
 	int cnt = 0;
 	for (const auto& piece : pieces) {
-		if (piece.is_in_goal() ||  piece.is_in_home()) { cnt++; }
+		if (piece.is_in_goal() || piece.is_in_home()) { cnt++; }
 	}
 	return cnt;
 }
@@ -75,7 +75,7 @@ int Player::find_available_home(int needed_steps) {
 }
 
 void Player::handle_rolling_to_game(int& dice) {
-	for (int i = 0; i < MAX_ATTEMPTS_TO_ROLL;i++) {
+	for (int i = 0; i < MAX_ATTEMPTS_TO_ROLL; i++) {
 		dice = roll_dice();
 		cout << "dobio/la si: " << dice << endl;
 
@@ -88,8 +88,8 @@ bool Player::has_valid_move(int dice) const {
 		return true;
 	}
 	for (const auto& p : pieces) {
-		if (!p.is_in_base() && !p.is_in_goal() && p.can_move(dice)) { 
-			return true; 
+		if (!p.is_in_base() && !p.is_in_goal() && p.can_move(dice)) {
+			return true;
 		};
 	}
 	return false;
@@ -125,14 +125,14 @@ bool Player::execute_move(int dice, Board* board) {
 		if (new_steps == TOTAL_STEPS_TO_GOAL) {
 			home_occupied[3] = true;
 			piece.move_to_goal();
-			cout << "FIGURA U CILJU!" << endl;
+			//cout << "FIGURA U CILJU!" << endl;
 		}
 		else if (new_steps > TOTAL_STEPS_TO_GOAL) {
 			int overfl = new_steps - BOARD_SIZE;
 			last_move_pos = (start_position + overfl) % BOARD_SIZE;
 			piece.move_to_position(overfl, last_move_pos);
 			board->place(&piece, last_move_pos);
-			cout << "ne moze u kucicu, nastavlja na " << last_move_pos << endl;
+			//cout << "ne moze u kucicu, nastavlja na " << last_move_pos << endl;
 		}
 		else {
 			int avail_steps = find_available_home(new_steps);
@@ -142,7 +142,7 @@ bool Player::execute_move(int dice, Board* board) {
 				last_move_pos = (start_position + overfl) % BOARD_SIZE;
 				piece.move_to_position(overfl, last_move_pos);
 				board->place(&piece, last_move_pos);
-				cout << "nema mista u kucici, ides na " << last_move_pos << endl;
+				//cout << "nema mista u kucici, ides na " << last_move_pos << endl;
 			}
 			else {
 				int home_index = avail_steps - BOARD_SIZE - 1;
@@ -150,11 +150,30 @@ bool Player::execute_move(int dice, Board* board) {
 
 				int home_pos = HOME_POSITION_BASE + start_position + home_index;
 				piece.move_to_position(avail_steps, home_pos);
-				cout << "figura u kucici na mistu " << (home_index + 1) << "/4" << endl;
+				//cout << "figura u kucici na mistu " << (home_index + 1) << "/4" << endl;
 			}
 		}
 	}
 	else {
+
+		int new_pos = (start_position + curr_steps + dice) % BOARD_SIZE;
+
+		bool is_my_piece = false;
+
+		for (int k = 0; k < NUM_PIECES_PER_PLAYER; k++) {
+			if (k != index && !pieces[k].is_in_base() && !pieces[k].is_in_goal() &&
+				!pieces[k].is_in_home() && pieces[k].get_position() == new_pos) {
+				is_my_piece = true;
+				break;
+			}
+		}
+
+		if (is_my_piece) {
+			//cout << "Ne mozes stat na svoju figuru!" << endl;
+			return false;
+		}
+
+
 		piece.move(dice);
 		last_move_pos = piece.get_position();
 		board->place(&piece, last_move_pos);
@@ -254,11 +273,11 @@ void Player::play_turn(Board* board) {
 	}
 	catch (const exception& e) {
 		cout << "greska: " << e.what() << endl;
-	
+
 	}
 
-	if (all_pieces_in_goal()) { 
-		cout << name << " je pobjednik!!!" << endl; 
+	if (all_pieces_in_goal()) {
+		cout << name << " je pobjednik!!!" << endl;
 	}
 
 }

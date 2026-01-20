@@ -4,8 +4,9 @@
 
 using namespace std;
 
-Piece::Piece() 
-	:position(BASE_POSITION),steps_taken(0), owner_start_pos(0), in_base(true), in_goal(false) {}
+Piece::Piece()
+	:position(BASE_POSITION), steps_taken(0), owner_start_pos(0), in_base(true), in_goal(false) {
+}
 
 
 void Piece::init(int start_pos) { owner_start_pos = start_pos; };
@@ -20,16 +21,16 @@ bool Piece::is_in_home() const { return steps_taken > BOARD_SIZE && !in_goal; }
 
 void Piece::place_on_start() {
 	if (!in_base) { throw runtime_error("Figura nije u bazi, ne moze izaci na plocu!"); };
-	
+
 	position = owner_start_pos;
 	steps_taken = 0;
 	in_base = false;
 	in_goal = false;
-	
+
 	cout << "figura izasla iz baze na poziciju: " << position << endl;
 }
 
-bool Piece::can_move(int dice) const { 
+bool Piece::can_move(int dice) const {
 	if (in_base || in_goal) return false;
 
 	if (steps_taken > BOARD_SIZE) {
@@ -55,10 +56,10 @@ int Piece::new_position(int dice) const {
 void Piece::move(int dice) {
 	if (in_base) { throw runtime_error("Figura je u bazi, koristi drugu funkciju!"); };
 	if (in_goal) { throw runtime_error("Figura je u kucici, koristi drugu funkciju!"); };
-	
+
 	steps_taken += dice;
 	position = (owner_start_pos + steps_taken) % BOARD_SIZE;
-	
+
 	cout << "figura se pomakla na poz: " << position << endl;
 }
 
@@ -71,7 +72,7 @@ void Piece::move_to_position(int steps, int pos) {
 }
 
 void Piece::move_to_goal() {
-	if(in_base) { throw runtime_error("Figura je u bazi, koristi drugu funkciju!"); };
+	if (in_base) { throw runtime_error("Figura je u bazi, koristi drugu funkciju!"); };
 
 	in_goal = true;
 	position = BASE_POSITION;

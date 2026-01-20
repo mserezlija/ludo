@@ -22,7 +22,7 @@ public:
 	bool is_in_base() const;
 	bool is_in_goal() const;
 	bool is_in_home() const;
-	
+
 	void place_on_start();
 	bool can_move(int dice) const;
 	int new_position(int dice) const;

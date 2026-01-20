@@ -7,11 +7,13 @@
 #include <vector>
 #include <string>
 
+class Graphics;
+
 class Game {
 private:
 	Player* players[NUM_PLAYERS];
-
 	Board* board;
+	Graphics* graphics = nullptr;
 
 	int curr_player;
 	int num_human;
@@ -22,8 +24,11 @@ public:
 	Game(int human_players = 1);
 	~Game();
 
+	void update_dice(int dice_val);
+
 	void start_game();
 	Player* get_player(int index);
+	void set_graphics(Graphics* g);
 };
 
 #endif

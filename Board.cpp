@@ -5,20 +5,20 @@
 #include "GameConstants.h"
 
 Board::Board(Game* g) :game(g) {
-	for (int i = 0; i < BOARD_SIZE; i++) { board_fields[i] = nullptr; }
+    for (int i = 0; i < BOARD_SIZE; i++) { board_fields[i] = nullptr; }
 }
 
 bool Board::is_avail(int pos) const {
-	if (pos < 0 || pos >= BOARD_SIZE) { return false; }
-	return board_fields[pos] == nullptr;
+    if (pos < 0 || pos >= BOARD_SIZE) { return false; }
+    return board_fields[pos] == nullptr;
 }
 
 void Board::place(Piece* piece, int pos) {
-	if (pos >= 0 && pos < BOARD_SIZE) { board_fields[pos] = piece; }
+    if (pos >= 0 && pos < BOARD_SIZE) { board_fields[pos] = piece; }
 }
 
 void Board::clear_pos(int pos) {
-	if (pos >= 0 && pos < BOARD_SIZE) { board_fields[pos] = nullptr; }
+    if (pos >= 0 && pos < BOARD_SIZE) { board_fields[pos] = nullptr; }
 }
 
 bool Board::eat_enemy(Piece* my_piece, int pos) {
@@ -55,8 +55,8 @@ bool Board::eat_enemy(Piece* my_piece, int pos) {
 }
 
 Piece* Board::get_piece_at(int pos) const {
-	if (pos >= 0 && pos < BOARD_SIZE) {
-		return board_fields[pos];
-	}
-	return nullptr;
+    if (pos >= 0 && pos < BOARD_SIZE) {
+        return board_fields[pos];
+    }
+    return nullptr;
 }
