@@ -8,9 +8,13 @@
 using namespace std;
 
 class Board;
+class Game;
 
 class Player {
 protected:
+
+	class Game* game_ref = nullptr;
+
 	string name;
 	string color;
 	Piece pieces[NUM_PIECES_PER_PLAYER];
@@ -34,6 +38,8 @@ public:
 	Player(const string& player_name, const string& player_color, int start_pos);
 
 	virtual ~Player();
+
+	void set_game(Game* g);
 
 	string get_name() const;
 	string get_color() const;

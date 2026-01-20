@@ -77,13 +77,13 @@ void Graphics::draw_board() {
     }
 }
 
-void Graphics::draw_bases() {
-    for (int p = 0; p < 4; p++) {
-        for (int i = 0; i < 4; i++) {
-            DrawCircle((int)base_positions[p][i].x, (int)base_positions[p][i].y, 14, Fade(player_colors[p], 0.3f));
-        }
-    }
-}
+//void Graphics::draw_bases() {
+//    for (int p = 0; p < 4; p++) {
+//        for (int i = 0; i < 4; i++) {
+//            DrawCircle((int)base_positions[p][i].x, (int)base_positions[p][i].y, 14, Fade(player_colors[p], 0.3f));
+//        }
+//    }
+//}
 
 void Graphics::draw_homes() {
     for (int p = 0; p < 4; p++) {
@@ -160,30 +160,278 @@ void Graphics::set_dice(int dice_val) {
 void Graphics::draw_dice() {
     int cx = WINDOW_SIZE / 2;
     int cy = WINDOW_SIZE / 2;
+    int size = 60;
+    int half = size / 2;
+    int r = 7;
 
-    // Bijeli kvadrat
-    DrawRectangle(cx - 35, cy - 35, 70, 70, WHITE);
-    DrawRectangleLines(cx - 35, cy - 35, 70, 70, BLACK);
+    // Bijeli kvadrat sa zaobljenim rubovima (simuliramo sa 2 kvadrata)
+    DrawRectangle(cx - half, cy - half, size, size, WHITE);
+    DrawRectangleLines(cx - half, cy - half, size, size, BLACK);
 
-    // Tocke ovisno o broju
+    int dice = last_dice;
+    if (game) dice = game->get_curr_dice();
+
+    int left = cx - 18;
+    int right = cx + 18;
+    int top = cy - 18;
+    int bottom = cy + 18;
+
     Color dot = BLACK;
-    int r = 6;
 
-    if (last_dice == 1 || last_dice == 3 || last_dice == 5) {
-        DrawCircle(cx, cy, r, dot);  // sredina
+    // 1 - sredina
+    if (dice == 1) {
+        DrawCircle(cx, cy, r, dot);
     }
-    if (last_dice >= 2) {
-        DrawCircle(cx - 15, cy - 15, r, dot);  // gore lijevo
-        DrawCircle(cx + 15, cy + 15, r, dot);  // dolje desno
+    // 2 - dijagonala
+    else if (dice == 2) {
+        DrawCircle(left, top, r, dot);
+        DrawCircle(right, bottom, r, dot);
     }
-    if (last_dice >= 4) {
-        DrawCircle(cx + 15, cy - 15, r, dot);  // gore desno
-        DrawCircle(cx - 15, cy + 15, r, dot);  // dolje lijevo
+    // 3 - dijagonala + sredina
+    else if (dice == 3) {
+        DrawCircle(left, top, r, dot);
+        DrawCircle(cx, cy, r, dot);
+        DrawCircle(right, bottom, r, dot);
     }
-    if (last_dice == 6) {
-        DrawCircle(cx - 15, cy, r, dot);  // lijevo sredina
-        DrawCircle(cx + 15, cy, r, dot);  // desno sredina
+    // 4 - sva 4 kuta
+    else if (dice == 4) {
+        DrawCircle(left, top, r, dot);
+        DrawCircle(right, top, r, dot);
+        DrawCircle(left, bottom, r, dot);
+        DrawCircle(right, bottom, r, dot);
     }
+    // 5 - sva 4 kuta + sredina
+    else if (dice == 5) {
+        DrawCircle(left, top, r, dot);
+        DrawCircle(right, top, r, dot);
+        DrawCircle(cx, cy, r, dot);
+        DrawCircle(left, bottom, r, dot);
+        DrawCircle(right, bottom, r, dot);
+    }
+    // 6 - 2 stupca po 3
+    else if (dice == 6) {
+        DrawCircle(left, top, r, dot);
+        DrawCircle(left, cy, r, dot);
+        DrawCircle(left, bottom, r, dot);
+        DrawCircle(right, top, r, dot);
+        DrawCircle(right, cy, r, dot);
+        DrawCircle(right, bottom, r, dot);
+    }
+}
+
+void Graphics::set_message(const std::string& msg) { message = msg; }
+
+void Graphics::draw_message() {
+    if (!message.empty()) {
+        DrawRectangle(200, 820, 500, 40, Fade(BLACK, 0.7f));
+        DrawText(message.c_str(), 220, 830, 20, WHITE);
+    }
+}
+
+void Graphics::draw_buttons() {
+    if (waiting_for_roll) {
+        DrawRectangle(350, 750, 200, 50, GREEN);
+        DrawRectangleLines(350, 750, 200, 50, BLACK);
+        DrawText("BACI KOCKICU", 375, 765, 20, BLACK);
+    }
+
+    if (waiting_for_new_or_move) {
+        DrawRectangle(200, 750, 200, 50, BLUE);
+        DrawText("NOVA FIGURA", 225, 765, 20, WHITE);
+
+        DrawRectangle(500, 750, 200, 50, ORANGE);
+        DrawText("POMAKNI", 545, 765, 20, WHITE);
+    }
+}
+
+bool Graphics::is_point_in_circle(Vector2 point, Vector2 center, float radius) {
+    float dx = point.x - center.x;
+    float dy = point.y - center.y;
+    return (dx * dx + dy * dy) <= (radius * radius);
+}
+
+int Graphics::get_clicked_piece(int player_idx) {
+    if (!IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) return -1;
+
+    Vector2 mouse = GetMousePosition();
+    Player* player = game->get_player(player_idx);
+    if (!player) return -1;
+
+    int base_idx = player->get_start_pos() / 10;
+
+    for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
+        Piece* piece = player->get_piece(i);
+        if (!piece) continue;
+
+        Vector2 pos = { 0, 0 };
+
+        if (piece->is_in_base()) {
+            pos = base_positions[base_idx][i];
+        }
+        else if (!piece->is_in_goal()) {
+            if (piece->is_in_home()) {
+                int home_idx = piece->get_steps_taken() - BOARD_SIZE - 1;
+                if (home_idx >= 0 && home_idx < 4) {
+                    pos = home_positions[base_idx][home_idx];
+                }
+            }
+            else {
+                int p = piece->get_position();
+                if (p >= 0 && p < BOARD_SIZE) {
+                    pos = board_positions[p];
+                }
+            }
+        }
+
+        if (is_point_in_circle(mouse, pos, PIECE_RADIUS + 5)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int Graphics::wait_for_roll() {
+    waiting_for_roll = true;
+
+    while (!WindowShouldClose()) {
+        update();
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse = GetMousePosition();
+            if (mouse.x >= 350 && mouse.x <= 550 && mouse.y >= 750 && mouse.y <= 800) {
+                waiting_for_roll = false;
+                int result = (rand() % MAX_DICE_VALUE) + 1;
+                return result;
+            }
+        }
+
+        if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) {
+            waiting_for_roll = false;
+            int result = (rand() % MAX_DICE_VALUE) + 1;
+            return result;
+        }
+    }
+
+    waiting_for_roll = false;
+    return 0;
+}
+
+int Graphics::wait_for_piece_selection(int current_player, int dice) {
+    waiting_for_piece = true;
+    //set_message("Klikni na figuru koju zelis pomaknuti");
+
+    Player* player = game->get_player(current_player);
+
+    while (!WindowShouldClose()) {
+        update();
+
+        int clicked = get_clicked_piece(current_player);
+        if (clicked >= 0) {
+            Piece* piece = player->get_piece(clicked);
+            if (piece && !piece->is_in_base() && !piece->is_in_goal() && piece->can_move(dice)) {
+                waiting_for_piece = false;
+                set_message("");
+                return clicked;
+            }
+        }
+    }
+    waiting_for_piece = false;
+    return -1;
+}
+
+bool Graphics::wait_for_new_or_move() {
+    waiting_for_new_or_move = true;
+    set_message("Dobio si 6! Odaberi akciju.");
+
+    while (!WindowShouldClose()) {
+        update();
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse = GetMousePosition();
+
+            if (mouse.x >= 200 && mouse.x <= 400 && mouse.y >= 750 && mouse.y <= 800) {
+                waiting_for_new_or_move = false;
+                set_message("");
+                return true;
+            }
+
+            if (mouse.x >= 500 && mouse.x <= 700 && mouse.y >= 750 && mouse.y <= 800) {
+                waiting_for_new_or_move = false;
+                set_message("");
+                return false;
+            }
+        }
+    }
+
+    waiting_for_new_or_move = false;
+    return false;
+}
+
+int Graphics::wait_for_player_cnt() {
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(DARKGRAY);
+
+        DrawText("COVJECE NE LJUTI SE", 280, 100, 30, WHITE);
+        DrawText("Odaberi broj ljudskih igraca:", 280, 250, 24, WHITE);
+
+        // Gumbi 0-4
+        for (int i = 1; i <= 4; i++) {
+            int x = 200 + i * 110;
+            DrawRectangle(x, 350, 80, 80, WHITE);
+            DrawRectangleLines(x, 350, 80, 80, BLACK);
+            char num[2] = { (char)('0' + i), '\0' };
+            DrawText(num, x + 30, 370, 40, BLACK);
+        }
+
+        EndDrawing();
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse = GetMousePosition();
+            for (int i = 0; i <= 4; i++) {
+                int x = 200 + i * 110;
+                if (mouse.x >= x && mouse.x <= x + 80 && mouse.y >= 350 && mouse.y <= 430) {
+                    return i;
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+int Graphics::wait_for_color_sel(bool taken[4]) {
+    const char* color_names[4] = { "CRVENA", "PLAVA", "ZELENA", "ZUTA" };
+
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(DARKGRAY);
+
+        DrawText("Odaberi boju:", 350, 200, 30, WHITE);
+
+        for (int i = 0; i < 4; i++) {
+            if (taken[i]) continue;
+
+            int x = 150 + i * 180;
+            DrawCircle(x + 60, 400, 50, player_colors[i]);
+            DrawCircleLines(x + 60, 400, 50, BLACK);
+            DrawText(color_names[i], x + 20, 480, 20, WHITE);
+        }
+
+        EndDrawing();
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            Vector2 mouse = GetMousePosition();
+            for (int i = 0; i < 4; i++) {
+                if (taken[i]) continue;
+                int x = 150 + i * 180;
+                Vector2 center = { (float)(x + 60), 400 };
+                if (is_point_in_circle(mouse, center, 50)) {
+                    return i;
+                }
+            }
+        }
+    }
+    return 0;
 }
 
 
@@ -192,10 +440,12 @@ void Graphics::update() {
 
     BeginDrawing();
     draw_board();
-    draw_bases();
+    //draw_bases();
     draw_homes();
     draw_pieces();
     draw_dice();
+    draw_buttons();
+    draw_message();
     DrawText("COVJECE NE LJUTI SE", 320, 10, 26, WHITE);
     EndDrawing();
 }

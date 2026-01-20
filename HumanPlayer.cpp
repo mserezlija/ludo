@@ -1,4 +1,6 @@
 #include "HumanPlayer.h"
+#include "Game.h"
+#include "Graphics.h"
 #include <iostream>
 #include <cstdlib>
 
@@ -6,16 +8,27 @@ using namespace std;
 
 HumanPlayer::HumanPlayer(const string& name, const string& color, int start_pos) : Player(name, color, start_pos) {};
 
+void HumanPlayer::set_graphics(Graphics* graph) { graphics = graph; }
+
 int HumanPlayer::roll_dice() {
-	cout << "stisni enter za bacit kockicu" << endl;
-	cin.get();
-	return (rand() % MAX_DICE_VALUE) + 1;
+	//cout << "stisni enter za bacit kockicu" << endl;
+	//cin.get();
+	int result;
+
+	if (graphics) { 
+		result = graphics->wait_for_roll(); 
+	}
+	else {
+		result = (rand() % MAX_DICE_VALUE) + 1;
+	}
+	
+	if (game_ref) { game_ref->update_dice(result); }
+	
+	return result;
 }
 
 int HumanPlayer::choose_piece(int dice) {
-	cout << "dostupne figure: " << endl;
-
-	for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
+	/*for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
 		if (!pieces[i].is_in_base() && !pieces[i].is_in_goal() && pieces[i].can_move(dice)) {
 			cout << "figura " << (i + 1) << " - Pozicija: " << pieces[i].get_position();
 			if (pieces[i].is_in_home()) {
@@ -24,7 +37,6 @@ int HumanPlayer::choose_piece(int dice) {
 			cout << endl;
 		}
 	}
-
 	while (true) {
 		cout << "odaberi figuru 1-4: ";
 		int c;
@@ -36,17 +48,22 @@ int HumanPlayer::choose_piece(int dice) {
 			if (!pieces[index].is_in_base() && !pieces[index].is_in_goal() && pieces[index].can_move(dice)) {
 				return index;
 			}
-			cout << "ta figura nije dostupna" << endl;
 		}
-		else { cout << "neispravan unos" << endl; }
+	}*/
+	if (graphics && game_ref) {
+		for (int i = 0; i < NUM_PLAYERS; i++) {
+			if (game_ref->get_player(i) == this) {
+				return graphics->wait_for_piece_selection(i, dice);
+			}
+		}
 	}
+	return 0;
 }
 
-bool HumanPlayer::new_or_move() {
-	cout << "dobio/la si 6. stisni 1 za novu figuru ili 2 za pomicanje postojece: ";
 
-	int c;
-	cin >> c;
-	cin.ignore();
-	return (c == 1);
+bool HumanPlayer::new_or_move() {
+	if (graphics) {
+		return graphics->wait_for_new_or_move();
+	}
+	return true;
 }

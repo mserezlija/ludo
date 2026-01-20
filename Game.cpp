@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Game.h"
+#include "Player.h"
 #include "ComputerPlayer.h"
 #include "HumanPlayer.h"
 #include "GameConstants.h"
@@ -12,7 +13,7 @@
 
 using namespace std;
 
-Game::Game(int human_players) :curr_player(0), num_human(human_players) {
+Game::Game(int human_players, Graphics* graph) : curr_player(0), num_human(human_players), graphics(graph) {
 	srand(time(0));
 
 	board = new Board(this);
@@ -48,10 +49,23 @@ Game::Game(int human_players) :curr_player(0), num_human(human_players) {
 
 		if (i < num_human) {
 			players[i] = new HumanPlayer(name, color, start_pos);
+			HumanPlayer* hp = dynamic_cast<HumanPlayer*>(players[i]);
+			if (hp && graphics) hp->set_graphics(graphics);
 		}
 		else {
 			players[i] = new ComputerPlayer(name, color, start_pos);
 		}
+	}
+
+	for (int i = 0; i < NUM_PLAYERS; i++) {
+		players[i]->set_game(this);
+	}
+}
+
+void Game::connect_graphics_to_players() {
+	for (int i = 0; i < num_human; i++) {
+		HumanPlayer* hp = dynamic_cast<HumanPlayer*>(players[i]);
+		if (hp) { hp->set_graphics(graphics); }
 	}
 }
 
@@ -86,6 +100,17 @@ Game::~Game() {
 		delete players[i];
 	}
 	delete board;
+}
+
+void Game::set_curr_dice(int dice_val) {
+	curr_dice = dice_val;
+	if (graphics) {
+		graphics->update();
+	}
+}
+
+int Game::get_curr_dice() const {
+	return curr_dice;
 }
 
 void Game::update_dice(int dice_val) {

@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include "Player.h"
 #include "Board.h"
+#include "Game.h"
 
 using namespace std;
 
@@ -19,6 +20,8 @@ Player::Player(const string& player_name, const string& player_color, int start_
 }
 
 Player::~Player() {}
+
+void Player::set_game(Game* g) { game_ref = g; }
 
 string Player::get_name() const { return name; };
 string Player::get_color() const { return color; };
@@ -125,14 +128,12 @@ bool Player::execute_move(int dice, Board* board) {
 		if (new_steps == TOTAL_STEPS_TO_GOAL) {
 			home_occupied[3] = true;
 			piece.move_to_goal();
-			//cout << "FIGURA U CILJU!" << endl;
 		}
 		else if (new_steps > TOTAL_STEPS_TO_GOAL) {
 			int overfl = new_steps - BOARD_SIZE;
 			last_move_pos = (start_position + overfl) % BOARD_SIZE;
 			piece.move_to_position(overfl, last_move_pos);
 			board->place(&piece, last_move_pos);
-			//cout << "ne moze u kucicu, nastavlja na " << last_move_pos << endl;
 		}
 		else {
 			int avail_steps = find_available_home(new_steps);
@@ -142,7 +143,6 @@ bool Player::execute_move(int dice, Board* board) {
 				last_move_pos = (start_position + overfl) % BOARD_SIZE;
 				piece.move_to_position(overfl, last_move_pos);
 				board->place(&piece, last_move_pos);
-				//cout << "nema mista u kucici, ides na " << last_move_pos << endl;
 			}
 			else {
 				int home_index = avail_steps - BOARD_SIZE - 1;
@@ -150,7 +150,6 @@ bool Player::execute_move(int dice, Board* board) {
 
 				int home_pos = HOME_POSITION_BASE + start_position + home_index;
 				piece.move_to_position(avail_steps, home_pos);
-				//cout << "figura u kucici na mistu " << (home_index + 1) << "/4" << endl;
 			}
 		}
 	}
