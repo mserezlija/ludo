@@ -130,7 +130,6 @@ void Game::start_game() {
 		
 		if (graphics) { graphics->update(); }
 
-
 		players[curr_player]->play_turn(board);
 		if (graphics) { 
 			graphics->update();
@@ -142,22 +141,26 @@ void Game::start_game() {
 			}
 			graphics->set_message("");
 
-
 		}
 
-
-		if (players[curr_player]->all_pieces_in_goal()) {
+		bool winner = true;
+		for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
+			if (players[curr_player]->get_piece(i)->get_steps_taken() != TOTAL_STEPS_TO_GOAL) {
+				winner = false;
+				break;
+			}
+		}
+		if (winner) {
 			game_over = true;
-
 			if (graphics) {
 				string win_msg = players[curr_player]->get_color() + " JE POBJEDNIK!";
 				graphics->set_message(win_msg);
 
-				for (int i = 0; i < 300; i++) {
-					graphics->update();
-				}
+				for (int i = 0; i < 300; i++) { graphics->update(); }
 			}
+
 		}
+
 		curr_player = (curr_player + 1) % NUM_PLAYERS;
 	}
 

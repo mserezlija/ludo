@@ -11,7 +11,7 @@ ComputerPlayer::ComputerPlayer(string player_name, string player_color, int star
 int ComputerPlayer::roll_dice() {
 
 	if (game_ref && game_ref->get_graphics()) {
-		for (int i = 0; i < 48; i++) {
+		for (int i = 0; i < 1; i++) { //!!!!!!!!!!!!!!!!!!! BILO JE 48
 			game_ref->get_graphics()->update();
 		}
 	}
@@ -27,9 +27,45 @@ int ComputerPlayer::choose_piece(int dice) {
 
 	for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
 		if (!pieces[i].is_in_base() && !pieces[i].is_in_goal() && pieces[i].can_move(dice)) {
+			int new_steps = pieces[i].get_steps_taken() + dice;
+
+			if (new_steps == TOTAL_STEPS_TO_GOAL) {
+				return i;
+			}
+		}
+	}
+
+	for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
+		if (pieces[i].is_in_home() && pieces[i].can_move(dice)) {
+			int new_steps = pieces[i].get_steps_taken() + dice;
+			int avail = find_available_home(new_steps);
+			if (avail != -1) {
+				return i;
+			}
+		}
+	}
+
+	for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
+		if(!pieces[i].is_in_base() && !pieces[i].is_in_goal() &&
+			!pieces[i].is_in_home() && pieces[i].can_move(dice)) {
+
+			int new_steps = pieces[i].get_steps_taken() + dice;
+
+			if (new_steps >= BOARD_SIZE && new_steps < TOTAL_STEPS_TO_GOAL) {
+				int avail = find_available_home(new_steps);
+				if (avail != -1) {
+					return i;
+				}
+			}
+		}
+	}
+	for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
+		if (!pieces[i].is_in_base() && !pieces[i].is_in_goal() &&
+			!pieces[i].is_in_home() && pieces[i].can_move(dice)) {
 			return i;
 		}
 	}
+
 	return -1;
 }
 

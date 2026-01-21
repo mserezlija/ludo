@@ -132,7 +132,9 @@ bool Player::execute_move(int dice, Board* board) {
 
 		if (new_steps == TOTAL_STEPS_TO_GOAL) {
 			home_occupied[3] = true;
-			piece.move_to_goal();
+			//piece.move_to_goal();
+			int home_pos = HOME_POSITION_BASE + start_position + 3;
+			piece.move_to_position(TOTAL_STEPS_TO_GOAL, home_pos);
 		}
 		else if (new_steps > TOTAL_STEPS_TO_GOAL) {
 			int overfl = new_steps - BOARD_SIZE;
