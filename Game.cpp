@@ -78,29 +78,6 @@ string Game::pick_color(int player_n, bool taken_colors[]) {
 			return PLAYER_COLORS[sel_index];
 		}
 	}
-	////cout << "odaberi boju: ";
-	//for (int i = 0; i < NUM_PLAYERS; i++) {
-	//	if (!taken_colors[i]) {
-	//		cout << "  " << (i + 1) << " - " << PLAYER_COLORS[i] << endl;
-	//	}
-	//}
-
-	//int picked;
-	//cin >> picked;
-	//cin.ignore();
-	//picked--;
-
-	//if (picked >= 0 && picked < NUM_PLAYERS && !taken_colors[picked]) {
-	//	taken_colors[picked] = true;
-	//	return PLAYER_COLORS[picked];
-	//}
-	////cout << "neispravan unos, automatski dodiljenja boja" << endl;
-	//for (int i = 0; i < NUM_PLAYERS; i++) {
-	//	if (!taken_colors[i]) {
-	//		taken_colors[i] = true;
-	//		return PLAYER_COLORS[i];
-	//	}
-	//}
 
 }
 
@@ -170,8 +147,16 @@ void Game::start_game() {
 
 
 		if (players[curr_player]->all_pieces_in_goal()) {
-			//cout << "pobjeda " << players[curr_player]->get_color() << "!!!!!!!!!!!" << endl;
 			game_over = true;
+
+			if (graphics) {
+				string win_msg = players[curr_player]->get_color() + " JE POBJEDNIK!";
+				graphics->set_message(win_msg);
+
+				for (int i = 0; i < 300; i++) {
+					graphics->update();
+				}
+			}
 		}
 		curr_player = (curr_player + 1) % NUM_PLAYERS;
 	}

@@ -27,7 +27,6 @@ private:
 
     void init_positions();
     void draw_board();
-    //void draw_bases();
     void draw_homes();
     void draw_pieces();
     void draw_dice();
